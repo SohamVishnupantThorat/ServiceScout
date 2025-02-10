@@ -1,4 +1,4 @@
-version: "0.0.26"                                    # Flow specification version
+version: "0.0.31"                                    # Flow specification version
 
 metadata:
   flow_type: "compound"                             # Specifies this as a compound flow
@@ -9,12 +9,12 @@ metadata:
   private: true                                     # Access control setting
 
 inputs:
-  prime_input_1:                                    # Primary input parameter
+  Area_of_interest:                                    # Primary input parameter
     type: string
     description: "What area would you like to know about in Social Services"
     required: true
     example: "Education, Women  Empowerment"
-  prime_input_2:                                    # Secondary input parameter
+  person_idolised:                                    # Secondary input parameter
     type: string
     description: "Any famous person you have read about in this area"
     required: false
@@ -30,8 +30,8 @@ workflow:
     #   style: ${inputs.prime_input_2}                                  # First processing stage
     # type: "custom"
     inputs:
-      input1: ${inputs.prime_input_1}
-      input2: ${inputs.prime_input_2}
+      input1: ${inputs.Area_of_interest}
+      input2: ${inputs.person_idolised}
     model:
       provider: "anthropic"                     # e.g., anthropic, openai, meta, etc.
       name: "claude-3.5-sonnet"                            # Specific model identifier
@@ -42,8 +42,8 @@ workflow:
   second_flow:                                      # Parallel processing stage
     type: "custom"
     inputs:
-      input1: ${inputs.prime_input_1}
-      input2: ${inputs.prime_input_2}
+      input1: ${inputs.Area_of_interest}
+      input2: ${inputs.person_idolised}
     model:
       provider: "anthropic"                     # e.g., anthropic, openai, meta, etc.
       name: "claude-3.5-sonnet"                            # Specific model identifier
@@ -64,21 +64,54 @@ workflow:
       name: "claude-3.5-sonnet"
     prompt: |
       Now study these two para, {input1},{input2}, referring to the dataset given
-      and frame a mixture of both of them in the best possible way such that it is not too long .
+      and frame a mixture of both of them in the best possible way such that it is not too long .Not more than a paragraph.
 
 output:
   value:                                           # Combine & customise outputs in order
-    - ${first_flow.output}
-    - ${second_flow.output}
     - ${third_flow.output}
 
 readme: |
-  This is a detailed explanation of what your flow does.
+  # ServiceScout
 
-  ### Workflow Overview:
-  1. **First Flow**: Executes `john_doe/first_elemental_flow` with the provided inputs
-  2. **Second Flow**: Runs in parallel with first flow
-  3. **Third Flow**: Depends on both previous flows, executes after they complete
 
-  ### Outputs:
-  - Combined outputs from all flows are returned in order
+  **ServiceScout** is an AI-powered chatbot designed to assist users in exploring and contributing to the field of social services in India. It provides concise insights into various social service areas, highlights contributions by notable figures, and offers actionable suggestions for users to make a social impact.
+
+  ---
+
+  ## Overview
+
+  ServiceScout merges AI capabilities with social service guidance by:
+  - **Explaining Social Service Areas**: Offers knowledge about diverse fields such as education, women empowerment, healthcare, and more.
+  - **Highlighting Contributions**: Showcases the work of notable individuals in specific sectors.
+  - **Suggesting Actionable Steps**: Recommends ways users can engage in impactful activities.
+
+  ---
+
+  ## Features
+
+  - **Knowledge Sharing**: Provides insights into different areas of social service.
+  - **Inspiration from Leaders**: Highlights contributions of famous individuals in relevant fields.
+  - **Actionable Guidance**: Suggests practical ways users can contribute to social causes.
+  - **AI-Powered Responses**: Utilizes advanced AI models to generate concise and meaningful outputs.
+
+  ---
+
+  ## How It Works
+
+  ### User Input
+  1. Users specify an area of interest (e.g., Education, Women Empowerment).
+  2. Optionally, users can mention a notable individual related to the field.
+
+  ### Processing Flow
+  1. **Model 1**: Explains the selected social service area.
+  2. **Model 2**: Suggests actionable ways users can contribute.
+  3. **Response Merge**: Combines both outputs into a cohesive and insightful answer.
+
+  ---
+
+  ## Installation and Usage
+
+  ### Prerequisites
+  - Python 3.8 or higher
+  - Access to Anthropic's Claude 3.5 API
+  - Mira Flows framework installed
