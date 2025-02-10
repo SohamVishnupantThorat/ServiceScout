@@ -1,0 +1,84 @@
+version: "0.0.26"                                    # Flow specification version
+
+metadata:
+  flow_type: "compound"                             # Specifies this as a compound flow
+  name: "servicescout"                            # Unique identifier
+  description: "This flow in general guides about knowledge in the area of social service in India"
+  author: "sohamthorat"                           # Your Mira Flows username
+  tags: [education, awareness, women-empowerment]                         # Discovery keywords
+  private: true                                     # Access control setting
+
+inputs:
+  prime_input_1:                                    # Primary input parameter
+    type: string
+    description: "What area would you like to know about in Social Services"
+    required: true
+    example: "Education, Women  Empowerment"
+  prime_input_2:                                    # Secondary input parameter
+    type: string
+    description: "Any famous person you have read about in this area"
+    required: false
+    example: "Mother Teresa, APJ Abdul Kalam"
+
+workflow:
+  # Elemental Flow stage - starts immediately
+  first_flow:     
+    type: "custom"
+    # flow_name: "flow"
+    # inputs:
+    #   topic: ${inputs.prime_input_1}
+    #   style: ${inputs.prime_input_2}                                  # First processing stage
+    # type: "custom"
+    inputs:
+      input1: ${inputs.prime_input_1}
+      input2: ${inputs.prime_input_2}
+    model:
+      provider: "anthropic"                     # e.g., anthropic, openai, meta, etc.
+      name: "claude-3.5-sonnet"                            # Specific model identifier
+    prompt: |
+      On the basis of your knowledge tell me more about the area mainly of social serive related to {input1} . if possible explain the thing done by  {input2}
+
+  # Custom processing stage - starts immediately (parallel to first_flow)
+  second_flow:                                      # Parallel processing stage
+    type: "custom"
+    inputs:
+      input1: ${inputs.prime_input_1}
+      input2: ${inputs.prime_input_2}
+    model:
+      provider: "anthropic"                     # e.g., anthropic, openai, meta, etc.
+      name: "claude-3.5-sonnet"                            # Specific model identifier
+    prompt: |
+      I would love to learn more how I could contribute to the socity in the area of {input1} through social services in India. 
+
+  # Waits for both first_flow and second_flow to complete
+  third_flow:                                       
+    type: "custom"
+    depends_on: [first_flow, second_flow]  # Dependent on fist_flow and second_flow
+    inputs:
+      input1: ${first_flow.output} # uses output of first_flow as input
+      input2: ${second_flow.output} # uses output of second_flow as input
+    dataset:
+      source: "sohamthorat/nsshours"
+    model:
+      provider: "anthropic"
+      name: "claude-3.5-sonnet"
+    prompt: |
+      Now study these two para, {input1},{input2}, referring to the dataset given
+      and frame a mixture of both of them in the best possible way such that it is not too long .
+
+output:
+  value:                                           # Combine & customise outputs in order
+    - ${first_flow.output}
+    - ${second_flow.output}
+    - ${third_flow.output}
+
+readme: |
+  This is a detailed explanation of what your flow does.
+
+  ### Workflow Overview:
+  1. **First Flow**: Executes `john_doe/first_elemental_flow` with the provided inputs
+  2. **Second Flow**: Runs in parallel with first flow
+  3. **Third Flow**: Depends on both previous flows, executes after they complete
+
+  ### Outputs:
+  - Combined outputs from all flows are returned in order
